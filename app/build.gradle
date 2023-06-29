@@ -20,6 +20,8 @@ android {
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
         resValue "string", "KAKAO_NATIVE_APP_KEY", properties.getProperty('KAKAO_NATIVE_APP_KEY')
+        buildConfigField "String", "NAVER_NATIVE_APP_KEY", properties.getProperty('NAVER_NATIVE_APP_KEY')
+        resValue "string", "NAVER_NATIVE_APP_KEY", properties.getProperty('NAVER_NATIVE_APP_KEY')
     }
 
     buildTypes {
@@ -58,4 +60,7 @@ dependencies {
 
     // kakao map sdk
     implementation files('libs/libDaumMapAndroid.jar')
+
+    // naver map sdk
+    implementation 'com.naver.maps:map-sdk:3.16.2'
 }
