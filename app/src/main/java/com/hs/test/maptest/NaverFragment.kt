@@ -1,12 +1,23 @@
 package com.hs.test.maptest
 
+import androidx.core.os.bundleOf
 import com.hs.test.maptest.databinding.FragmentNaverBinding
-import com.naver.maps.map.NaverMapSdk
+import com.hs.test.maptest.helper.NaverMapHelper
 
 class NaverFragment : BaseFragment<FragmentNaverBinding>(FragmentNaverBinding::inflate) {
+
+    private lateinit var mapViewHelper: NaverMapHelper
+
     override fun initView() {
-        NaverMapSdk.getInstance(requireContext()).client =
-            NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_NATIVE_APP_KEY)
+        mapViewHelper = NaverMapHelper(context = requireContext())
+        binding.naverMapView.apply {
+            onCreate(bundleOf())
+            binding.naverMapView.getMapAsync(mapViewHelper)
+        }
+
+        binding.test.setOnClickListener {
+            mapViewHelper.updateCurrentLocation()
+        }
     }
 
 }

@@ -51,8 +51,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    private val LOCATION_PERMISSION_REQUEST_CODE = 101
+    companion object {
+        val LOCATION_PERMISSION_REQUEST_CODE = 101
+    }
 
     private fun reqPermission() {
         val fineLocationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
