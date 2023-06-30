@@ -19,8 +19,22 @@ class NaverMapHelper(
 
     private lateinit var map: NaverMap
 
-    init {
-        setLocationTrackingMode()
+    companion object {
+        private var instance: NaverMapHelper? = null
+
+        fun getInstance(
+            context: Context,
+            fragment: NaverFragment
+        ): NaverMapHelper {
+            if (instance == null) {
+                synchronized(NaverMapHelper::class.java) {
+                    if (instance == null) {
+                        instance = NaverMapHelper(context, fragment)
+                    }
+                }
+            }
+            return instance!!
+        }
     }
 
     private fun setNaverMap(naverMap: NaverMap) {
@@ -30,7 +44,7 @@ class NaverMapHelper(
         this.map.uiSettings.isLocationButtonEnabled = true
     }
 
-    private fun setLocationTrackingMode() {
+    fun setLocationTrackingMode() {
         getCurrentLocation { result ->
             if (result != null) {
                 location = result

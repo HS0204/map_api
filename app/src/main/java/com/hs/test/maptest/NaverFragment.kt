@@ -9,11 +9,16 @@ class NaverFragment : BaseFragment<FragmentNaverBinding>(FragmentNaverBinding::i
     private lateinit var mapViewHelper: NaverMapHelper
 
     override fun initView() {
-        mapViewHelper = NaverMapHelper(context = requireContext(), fragment = this)
+        mapViewHelper = NaverMapHelper.getInstance(context = requireContext(), fragment = this)
         binding.naverMapView.apply {
             onCreate(bundleOf())
-            binding.naverMapView.getMapAsync(mapViewHelper)
+            getMapAsync(mapViewHelper)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapViewHelper.setLocationTrackingMode()
     }
 
 }
