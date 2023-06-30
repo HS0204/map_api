@@ -10,6 +10,17 @@ class GoogleMapHelper(
 
     private lateinit var map: GoogleMap
 
+    companion object {
+        @Volatile
+        private var instance: GoogleMapHelper? = null
+
+        fun getInstance(context: Context): GoogleMapHelper {
+            return instance ?: synchronized(this) {
+                instance ?: GoogleMapHelper(context).also { instance = it }
+            }
+        }
+    }
+
     private fun setGoogleMap(googleMap: GoogleMap) {
         this.map = googleMap
     }

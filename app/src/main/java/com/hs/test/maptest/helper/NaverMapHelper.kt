@@ -20,20 +20,16 @@ class NaverMapHelper(
     private lateinit var map: NaverMap
 
     companion object {
+        @Volatile
         private var instance: NaverMapHelper? = null
 
         fun getInstance(
             context: Context,
             fragment: NaverFragment
         ): NaverMapHelper {
-            if (instance == null) {
-                synchronized(NaverMapHelper::class.java) {
-                    if (instance == null) {
-                        instance = NaverMapHelper(context, fragment)
-                    }
-                }
+            return instance ?: synchronized(this) {
+                instance ?: NaverMapHelper(context, fragment).also { instance = it }
             }
-            return instance!!
         }
     }
 
