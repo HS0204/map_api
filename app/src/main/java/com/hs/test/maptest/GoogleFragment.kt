@@ -17,4 +17,29 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        binding.googleMapView.onStart()
+    }
+    override fun onStop() {
+        super.onStop()
+        binding.googleMapView.onStop()
+    }
+    override fun onResume() {
+        super.onResume()
+        binding.googleMapView.onResume()
+    }
+    override fun onPause() {
+        super.onPause()
+        binding.googleMapView.onPause()
+    }
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.googleMapView.onLowMemory()
+    }
+    override fun onDestroy() {
+        binding.googleMapView.onDestroy()
+        super.onDestroy()
+    }
+
 }
