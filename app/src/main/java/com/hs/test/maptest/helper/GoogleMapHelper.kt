@@ -1,8 +1,13 @@
 package com.hs.test.maptest.helper
 
+import android.annotation.SuppressLint
 import android.content.Context
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
+import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.LocationTrackingMode
 
 class GoogleMapHelper(
     private val context: Context
@@ -25,7 +30,19 @@ class GoogleMapHelper(
         this.map = googleMap
     }
 
+    private fun setCamera() {
+        getCurrentLocation { result ->
+            if (result != null) {
+                location = result
+                this.map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 15f))
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         setGoogleMap(googleMap)
+        setCamera()
+        this.map.isMyLocationEnabled = true
     }
 }
