@@ -32,6 +32,9 @@
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="@string/NAVER_NATIVE_APP_KEY" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/GOOGLE_NATIVE_APP_KEY" />
     </application>
 
 </manifest>
