@@ -9,14 +9,10 @@ class NaverFragment : BaseFragment<FragmentNaverBinding>(FragmentNaverBinding::i
     private lateinit var mapViewHelper: NaverMapHelper
 
     override fun initView() {
-        mapViewHelper = NaverMapHelper(context = requireContext())
+        mapViewHelper = NaverMapHelper(context = requireContext(), fragment = this)
         binding.naverMapView.apply {
             onCreate(bundleOf())
             binding.naverMapView.getMapAsync(mapViewHelper)
-        }
-
-        binding.test.setOnClickListener {
-            mapViewHelper.updateCurrentLocation()
         }
     }
 

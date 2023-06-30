@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
     companion object {
-        val LOCATION_PERMISSION_REQUEST_CODE = 101
+        const val LOCATION_PERMISSION_REQUEST_CODE = 101
     }
 
     private fun reqPermission() {
