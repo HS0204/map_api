@@ -17,6 +17,12 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        // 실시간 위치 감지 삭제
+        mapViewHelper.removeLocationUpdates()
+    }
+
     override fun onDestroyView() {
         binding.googleMapView.onDestroy()
         super.onDestroyView()
