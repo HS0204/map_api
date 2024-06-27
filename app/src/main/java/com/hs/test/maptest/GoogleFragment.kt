@@ -6,7 +6,8 @@ import com.hs.test.maptest.helper.GoogleMapHelper
 
 class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding::inflate) {
 
-        private lateinit var mapViewHelper: GoogleMapHelper
+    private lateinit var mapViewHelper: GoogleMapHelper
+
     override fun initView() {
         mapViewHelper = GoogleMapHelper.getInstance(context = requireContext())
 
@@ -15,6 +16,7 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
             onStart()
             getMapAsync(mapViewHelper)
         }
+        DataTest().testReadDb()
     }
 
     override fun onPause() {
