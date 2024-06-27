@@ -8,6 +8,9 @@ android {
     namespace 'com.hs.test.maptest'
     compileSdk 33
 
+    task prepareKotlinBuildScriptModel() {}
+    task wrapper(type: Wrapper) {}
+
     defaultConfig {
         applicationId "com.hs.test.maptest"
         minSdk 23
@@ -62,12 +65,6 @@ dependencies {
 
     // 현위치
     implementation 'com.google.android.gms:play-services-location:19.0.0'
-
-    // kakao map sdk
-    implementation files('libs/libDaumMapAndroid.jar')
-
-    // naver map sdk
-    implementation 'com.naver.maps:map-sdk:3.16.2'
 
     // google map sdk
     implementation 'com.google.android.gms:play-services-maps:18.1.0'

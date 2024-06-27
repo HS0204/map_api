@@ -3,18 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/kakaoFragment">
+    app:startDestination="@id/googleFragment">
 
-    <fragment
-        android:id="@+id/kakaoFragment"
-        android:name="com.hs.test.maptest.KakaoFragment"
-        android:label="fragment_kakao"
-        tools:layout="@layout/fragment_kakao" />
-    <fragment
-        android:id="@+id/naverFragment"
-        android:name="com.hs.test.maptest.NaverFragment"
-        android:label="fragment_naver"
-        tools:layout="@layout/fragment_naver" />
     <fragment
         android:id="@+id/googleFragment"
         android:name="com.hs.test.maptest.GoogleFragment"
