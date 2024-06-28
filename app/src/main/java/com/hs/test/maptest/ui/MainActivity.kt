@@ -1,4 +1,4 @@
-package com.hs.test.maptest
+package com.hs.test.maptest.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.hs.test.maptest.R
 
 class MainActivity : AppCompatActivity() {
 

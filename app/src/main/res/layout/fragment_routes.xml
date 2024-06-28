@@ -3,11 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.map.GoogleFragment">
+    tools:context=".ui.routeList.RoutesFragment">
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/google_map_view"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:text="저장된 경로가 없습니다."
+        android:gravity="center"
+        android:layout_height="match_parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

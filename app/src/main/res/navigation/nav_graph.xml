@@ -7,7 +7,12 @@
 
     <fragment
         android:id="@+id/googleFragment"
-        android:name="com.hs.test.maptest.GoogleFragment"
+        android:name="com.hs.test.maptest.ui.map.GoogleFragment"
         android:label="fragment_google"
         tools:layout="@layout/fragment_google" />
+    <fragment
+        android:id="@+id/routesFragment"
+        android:name="com.hs.test.maptest.ui.routeList.RoutesFragment"
+        android:label="fragment_routes"
+        tools:layout="@layout/fragment_routes" />
 </navigation>

@@ -1,6 +1,8 @@
-package com.hs.test.maptest
+package com.hs.test.maptest.ui.map
 
 import androidx.core.os.bundleOf
+import com.hs.test.maptest.RoutesViewModel
+import com.hs.test.maptest.base.BaseFragment
 import com.hs.test.maptest.databinding.FragmentGoogleBinding
 import com.hs.test.maptest.helper.GoogleMapHelper
 
@@ -16,7 +18,7 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
             onStart()
             getMapAsync(mapViewHelper)
         }
-        DataTest().testReadDb()
+        RoutesViewModel().readRouteInfoFromDB(userId = "test", date = "hello")
     }
 
     override fun onPause() {

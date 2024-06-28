@@ -1,4 +1,4 @@
-package com.hs.test.maptest
+package com.hs.test.maptest.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
