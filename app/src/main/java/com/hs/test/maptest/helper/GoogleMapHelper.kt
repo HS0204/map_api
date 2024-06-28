@@ -34,7 +34,8 @@ class GoogleMapHelper(context: Context) : OnMapReadyCallback {
     }
 
     // todo: 테스트 위치 임시
-    private val routes: MutableList<LatLng> = mutableListOf(LatLng(37.774785, -122.454545))
+    private val routes: MutableList<LatLng> = mutableListOf()
+//    private val routes: MutableList<LatLng> = mutableListOf(LatLng(37.774785, -122.454545))
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
