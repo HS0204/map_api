@@ -12,15 +12,48 @@ import com.google.firebase.ktx.Firebase
 import com.hs.test.maptest.data.RouteInfo
 
 class RoutesViewModel : ViewModel() {
-    private val _routes: MutableLiveData<List<RouteInfo>> = MutableLiveData()
-    val routes get() = _routes
+    // 현재 경로 추적 여부
+    private val _isTracking = MutableLiveData<Boolean>(false)
+    val isTracking get() = _isTracking
+
+    // 현재 경로
+    private val _currentTrackingPath: MutableLiveData<List<LatLng>> = MutableLiveData()
+    val currentTrackingPath get() = _currentTrackingPath
+
+    // DB에서 읽어온 경로 리스트
+    private val _routeList: MutableLiveData<List<RouteInfo>> = MutableLiveData(listOf())
+    val routeList get() = _routeList
 
     private val database = Firebase.database
 
     /**
+     * 현재 경로에 위도, 경도 추가
+     * @param latLng 추가할 경로의 위도, 경도
+     */
+    fun addRoute(latLng: LatLng) {
+        val currentRoutes = _currentTrackingPath.value?.toMutableList() ?: mutableListOf()
+        currentRoutes.add(latLng)
+        _currentTrackingPath.postValue(currentRoutes)
+    }
+
+    /**
+     * 현재 추적 중인 경로 삭제
+     */
+    private fun clearRoutes() {
+        _currentTrackingPath.postValue(emptyList())
+    }
+
+    /**
+     * 추적 여부 저장
+     */
+    fun setTrackingState(isObserve: Boolean) {
+        _isTracking.value = isObserve
+    }
+
+    /**
      * 날짜로 단 건 읽어옴
      * @param userId 사용자 아이디
-     * @param date 검색할 날짜 todo: 형식 지정 필요
+     * @param date 검색할 날짜
      */
     fun readRouteInfoFromDB(userId: String, date: String) {
         val db = database.getReference(userId).child(date)
@@ -30,9 +63,9 @@ class RoutesViewModel : ViewModel() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val value = snapshot.value as? Map<*, *>
                     if (value != null) {
-                        processDate(userId = userId, date = date, data = value)
+                        parseDataToRouteInfo(userId = userId, date = date, data = value)
                     }
-                    Log.e("GoogleMapHelper", "$userId [$date] > DB 읽기 성공: $value")
+                    Log.i("GoogleMapHelper", "$userId [$date] > DB 읽기 성공: $value")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -40,12 +73,12 @@ class RoutesViewModel : ViewModel() {
                 }
             })
         } catch (e: Exception) {
-            Log.e("GoogleMapHelper", "Hello world DB 읽기 실패")
+            Log.e("GoogleMapHelper", "$userId DB 읽기 실패: ${e.message}")
         }
     }
 
     /**
-     * 날짜로 단 건 읽어옴
+     * 유저 id로 전체 건 읽어옴
      * @param userId 사용자 아이디
      */
     fun readRouteInfoListFromDB(userId: String) {
@@ -56,51 +89,85 @@ class RoutesViewModel : ViewModel() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val value = snapshot.value as? Map<*, *>
                     if (value != null) {
-                        // todo: 다건 처리 필요.. 날짜별로 묶어서 리스트로 반환
+                        _routeList.postValue(
+                            parseDataToRouteInfoList(
+                                userId = userId,
+                                data = value
+                            )
+                        )
                     }
-                    Log.e("GoogleMapHelper", "Hello world DB 읽기 성공: $value")
+                    Log.i("GoogleMapHelper", "$userId DB 읽기 성공: ${snapshot.value}")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("GoogleMapHelper", "Hello world DB 읽기 실패: ${error.message}")
+                    Log.e("GoogleMapHelper", "$userId DB 읽기 실패: ${error.message}")
                 }
             })
         } catch (e: Exception) {
-            Log.e("GoogleMapHelper", "Hello world DB 읽기 실패")
+            Log.e("GoogleMapHelper", "$userId DB 읽기 실패: ${e.message}")
         }
     }
 
     /**
-     * 저장
+     * DB에 저장
+     * @param userId 사용자 아이디
+     * @param dateTime 저장할 날짜
      */
-    fun writeLocationToDB(userId: String, date: String) {
-        val db = database.getReference(userId).child(date)
+    fun writeRouteToDB(userId: String, dateTime: String) {
+        val db = database.getReference(userId).child(dateTime)
 
         try {
-            db.push().setValue(LatLng(37.23453, -122.454545))
-            Log.e("GoogleMapHelper", "Hello world DB 작성")
+            _currentTrackingPath.value?.map { location -> db.push().setValue(location) }
+            Log.i("GoogleMapHelper", "$userId 에 $dateTime DB 작성")
+            clearRoutes()
         } catch (e: Exception) {
-            Log.e("GoogleMapHelper", "Hello world DB 작성 실패")
+            Log.e("GoogleMapHelper", "$userId 에 $dateTime DB 작성 실패")
         }
+    }
+
+    /**
+     * 단건 전처리
+     */
+    private fun parseDataToRouteInfo(userId: String, date: String, data: Map<*, *>): RouteInfo {
+        val locations = mutableListOf<LatLng>()
+
+        try {
+            for ((_, value) in data) {
+                val locationData = value as? Map<String, Any> ?: return RouteInfo(userId, date, emptyList())
+                val latitude = locationData["latitude"] as? Double
+                val longitude = locationData["longitude"] as? Double
+
+                if (latitude != null && longitude != null) {
+                    locations.add(LatLng(latitude, longitude))
+                    Log.d(
+                        "GoogleMapHelper",
+                        "Location data - Latitude: $latitude, Longitude: $longitude"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("GoogleMapHelper", "DB 데이터 전처리 실패: ${e.message}")
+        }
+
+        return RouteInfo(userId = userId, date = date, location = locations.toList())
     }
 
     /**
      * 다건 전처리
      */
+    private fun parseDataToRouteInfoList(userId: String, data: Map<*, *>): List<RouteInfo> {
+        val routeInfoList = mutableListOf<RouteInfo>()
 
-    /**
-     * 단건 전처리
-     */
-    private fun processDate(userId: String, date: String, data: Map<*, *>): RouteInfo {
-        val locations = mutableListOf<LatLng>()
-        for ((key, value) in data) {
-            when (value) {
-                is Map<*, *> -> {
-                    val locationData = value as? Map<String, Any>
-                    val latitude = locationData?.get("latitude") as? Double
-                    val longitude = locationData?.get("longitude") as? Double
+        try {
+            for ((date, locations) in data) {
+                val locationData = locations as? Map<String, Map<*, *>> ?: return emptyList()
+                val locationList = mutableListOf<LatLng>()
+
+                for ((_, latlng) in locationData) {
+                    val latitude = latlng["latitude"] as? Double
+                    val longitude = latlng["longitude"] as? Double
                     if (latitude != null && longitude != null) {
-                        locations.add(LatLng(latitude, longitude))
+                        locationList.add(LatLng(latitude, longitude))
                         Log.d(
                             "GoogleMapHelper",
                             "Location data - Latitude: $latitude, Longitude: $longitude"
@@ -108,13 +175,15 @@ class RoutesViewModel : ViewModel() {
                     }
                 }
 
-                else -> {
-                    Log.d("GoogleMapHelper", "Other data - Key: $key, Value: $value")
-                }
+                routeInfoList.add(
+                    RouteInfo(userId = userId, date = date.toString(), location = locationList)
+                )
             }
+        } catch (e: Exception) {
+            Log.e("GoogleMapHelper", "DB 데이터 전처리 실패: ${e.message}")
         }
 
-        return RouteInfo(userId = userId, date = date, location = locations.toList())
+        return routeInfoList
     }
 
 }

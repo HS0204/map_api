@@ -21,9 +21,13 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.StyleSpan
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.hs.test.maptest.RoutesViewModel
 import java.lang.ref.WeakReference
 
-class GoogleMapHelper(context: Context) : OnMapReadyCallback {
+class GoogleMapHelper(
+    context: Context,
+    private val routesViewModel: RoutesViewModel
+) : OnMapReadyCallback {
 
     private val weakContext: WeakReference<Context> = WeakReference(context)
     private val context: Context? get() = weakContext.get()
@@ -33,18 +37,16 @@ class GoogleMapHelper(context: Context) : OnMapReadyCallback {
         LocationServices.getFusedLocationProviderClient(context)
     }
 
-    // todo: 테스트 위치 임시
-    private val routes: MutableList<LatLng> = mutableListOf()
-//    private val routes: MutableList<LatLng> = mutableListOf(LatLng(37.774785, -122.454545))
-
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
             // 위치 변경 때마다 감지
             for (location in locationResult.locations) {
                 val latLng = LatLng(location.latitude, location.longitude)
-                routes.add(latLng)
-                Log.e("GoogleMapHelper", "onLocationResult: $latLng")
+                if (routesViewModel.isTracking.value == true) {
+                    routesViewModel.addRoute(latLng)
+                    Log.e("GoogleMapHelper", "onLocationResult: $latLng")
+                }
             }
 
             drawRoutes()
@@ -53,9 +55,11 @@ class GoogleMapHelper(context: Context) : OnMapReadyCallback {
 
     private fun drawRoutes() {
         this@GoogleMapHelper.map.clear()
+
+        if (routesViewModel.currentTrackingPath.value.isNullOrEmpty()) return
         this@GoogleMapHelper.map.addPolyline(
             PolylineOptions()
-                .addAll(routes)
+                .addAll(routesViewModel.currentTrackingPath.value!!)
                 .addSpan(StyleSpan(Color.GREEN))
         )
     }
@@ -178,9 +182,9 @@ class GoogleMapHelper(context: Context) : OnMapReadyCallback {
         @Volatile
         private var instance: GoogleMapHelper? = null
 
-        fun getInstance(context: Context): GoogleMapHelper {
+        fun getInstance(context: Context, routesViewModel: RoutesViewModel): GoogleMapHelper {
             return instance ?: synchronized(this) {
-                instance ?: GoogleMapHelper(context).also { instance = it }
+                instance ?: GoogleMapHelper(context, routesViewModel).also { instance = it }
             }
         }
     }
