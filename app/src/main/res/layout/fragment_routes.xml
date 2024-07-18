@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.hs.test.maptest.RoutesViewModel" />
@@ -13,19 +15,20 @@
         android:layout_height="match_parent"
         tools:context=".ui.routeList.RoutesFragment">
 
-<!--        <TextView-->
-<!--            android:id="@+id/tv_no_route"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:gravity="center"-->
-<!--            android:visibility="@{viewModel.routeList.empty == true}"-->
-<!--            android:text="저장된 경로가 없습니다." />-->
-
         <TextView
-            android:id="@+id/tv_route_list"
+            android:id="@+id/tv_no_route"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="저장된 경로가 없습니다."
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_route_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_path" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

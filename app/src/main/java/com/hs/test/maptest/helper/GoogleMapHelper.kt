@@ -5,13 +5,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
-import android.os.Looper
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -24,79 +20,14 @@ import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.hs.test.maptest.RoutesViewModel
 import java.lang.ref.WeakReference
 
-class GoogleMapHelper(
-    context: Context,
-    private val routesViewModel: RoutesViewModel
-) : OnMapReadyCallback {
+open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
 
     private val weakContext: WeakReference<Context> = WeakReference(context)
-    private val context: Context? get() = weakContext.get()
+    val context: Context? get() = weakContext.get()
 
     private lateinit var map: GoogleMap
-    private val fusedLocationClient: FusedLocationProviderClient by lazy {
+    val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            super.onLocationResult(locationResult)
-            // 위치 변경 때마다 감지
-            for (location in locationResult.locations) {
-                val latLng = LatLng(location.latitude, location.longitude)
-                if (routesViewModel.isTracking.value == true) {
-                    routesViewModel.addRoute(latLng)
-                    Log.e("GoogleMapHelper", "onLocationResult: $latLng")
-                }
-            }
-
-            drawRoutes()
-        }
-    }
-
-    private fun drawRoutes() {
-        this@GoogleMapHelper.map.clear()
-
-        if (routesViewModel.currentTrackingPath.value.isNullOrEmpty()) return
-        this@GoogleMapHelper.map.addPolyline(
-            PolylineOptions()
-                .addAll(routesViewModel.currentTrackingPath.value!!)
-                .addSpan(StyleSpan(Color.GREEN))
-        )
-    }
-
-    /**
-     * 실시간 위치 감지
-     */
-    private fun startLocationUpdates() {
-        if (context == null) return
-        if (ActivityCompat.checkSelfPermission(
-                context!!,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context!!,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
-        val locationRequest = LocationRequest.create()
-            .setInterval(10000)
-            .setFastestInterval(5000)
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
-    /**
-     * 실시간 위치 감지 삭제
-     */
-    fun removeLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     /**
@@ -128,39 +59,9 @@ class GoogleMapHelper(
     }
 
     /**
-     * 현위치 확인하여 카메라 세팅
+     * 카메라 세팅
      */
-    private fun checkCurrentLocation() {
-        if (context == null) return
-
-        if (ActivityCompat.checkSelfPermission(
-                context!!,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context!!,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
-        fusedLocationClient.getCurrentLocation(
-            LocationRequest.PRIORITY_HIGH_ACCURACY,
-            object : CancellationToken() {
-                override fun onCanceledRequested(p0: OnTokenCanceledListener): CancellationToken {
-                    return this
-                }
-
-                override fun isCancellationRequested(): Boolean {
-                    return false
-                }
-            }).addOnSuccessListener { setCamera(location = it) }
-    }
-
-    /**
-     * 최초 카메라 세팅
-     */
-    private fun setCamera(location: Location) {
+    fun setCamera(location: Location) {
         this.map.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(
@@ -171,21 +72,21 @@ class GoogleMapHelper(
         )
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        initiateGoogleMap(googleMap)
-        checkCurrentLocation()
-        startLocationUpdates()
+    /**
+     * 경로 그리기
+     */
+    fun drawRoutes(track: List<LatLng>?) {
+        map.clear()
+
+        if (track.isNullOrEmpty()) return
+        map.addPolyline(
+            PolylineOptions()
+                .addAll(track)
+                .addSpan(StyleSpan(Color.GREEN))
+        )
     }
 
-
-    companion object {
-        @Volatile
-        private var instance: GoogleMapHelper? = null
-
-        fun getInstance(context: Context, routesViewModel: RoutesViewModel): GoogleMapHelper {
-            return instance ?: synchronized(this) {
-                instance ?: GoogleMapHelper(context, routesViewModel).also { instance = it }
-            }
-        }
+    override fun onMapReady(googleMap: GoogleMap) {
+        initiateGoogleMap(googleMap)
     }
 }

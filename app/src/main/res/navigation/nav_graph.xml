@@ -14,5 +14,18 @@
         android:id="@+id/routesFragment"
         android:name="com.hs.test.maptest.ui.routeList.RoutesFragment"
         android:label="fragment_routes"
-        tools:layout="@layout/fragment_routes" />
+        tools:layout="@layout/fragment_routes" >
+        <action
+            android:id="@+id/action_routesFragment_to_selectedTrackFragment"
+            app:destination="@id/selectedTrackFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectedTrackFragment"
+        android:name="com.hs.test.maptest.ui.map.SelectedTrackFragment"
+        android:label="fragment_selected_track"
+        tools:layout="@layout/fragment_selected_track">
+        <argument
+            android:name="routeInfo"
+            app:argType="com.hs.test.maptest.data.RouteInfo" />
+    </fragment>
 </navigation>

@@ -9,17 +9,18 @@ import com.hs.test.maptest.UserViewModel
 import com.hs.test.maptest.base.BaseFragment
 import com.hs.test.maptest.databinding.FragmentGoogleBinding
 import com.hs.test.maptest.helper.GoogleMapHelper
+import com.hs.test.maptest.helper.MainMap
 import com.hs.test.maptest.util.getCurrentDateTime
 
 class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding::inflate) {
 
-    private lateinit var mapViewHelper: GoogleMapHelper
+    private lateinit var mapViewHelper: MainMap
 
     private val userViewModel by activityViewModels<UserViewModel>()
     private val routesViewModel by activityViewModels<RoutesViewModel>()
 
     override fun initView() {
-        mapViewHelper = GoogleMapHelper.getInstance(
+        mapViewHelper = MainMap.getInstance(
             context = requireContext(),
             routesViewModel = routesViewModel
         )
@@ -62,7 +63,11 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
     override fun onPause() {
         super.onPause()
         // 실시간 위치 감지 삭제
-        mapViewHelper.removeLocationUpdates()
+        if (::mapViewHelper.isInitialized) {
+            mapViewHelper.removeLocationUpdates()
+        } else {
+            Toast.makeText(requireContext(), "mapViewHelper is not initialized", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
