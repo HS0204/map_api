@@ -7,17 +7,14 @@ import android.graphics.Color
 import android.location.Location
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.StyleSpan
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.OnTokenCanceledListener
-import com.hs.test.maptest.RoutesViewModel
 import java.lang.ref.WeakReference
 
 open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
@@ -36,6 +33,20 @@ open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
     private fun initiateGoogleMap(googleMap: GoogleMap) {
         this.map = googleMap
 
+        with(this.map) {
+            isBuildingsEnabled = false
+            isIndoorEnabled = false
+            isTrafficEnabled = false
+
+            uiSettings.isZoomControlsEnabled = true
+            uiSettings.isCompassEnabled = true
+        }
+    }
+
+    /**
+     * 내 위치 활성화
+     */
+    fun setMyLocationEnabled(isEnabled: Boolean) {
         if (context == null) return
         if (ActivityCompat.checkSelfPermission(
                 context!!,
@@ -47,19 +58,12 @@ open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
         ) {
             return
         }
-        with(this.map) {
-            isMyLocationEnabled = true
-            isBuildingsEnabled = false
-            isIndoorEnabled = false
-            isTrafficEnabled = false
-
-            uiSettings.isZoomControlsEnabled = true
-            uiSettings.isCompassEnabled = true
-        }
+        this.map.isMyLocationEnabled = isEnabled
     }
 
     /**
      * 카메라 세팅
+     * @param location : 현재 위치
      */
     fun setCamera(location: Location) {
         this.map.moveCamera(
@@ -73,13 +77,28 @@ open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
     }
 
     /**
+     * 카메라 세팅
+     * @param locations : 경로 리스트
+     */
+    fun setCamera(locations: List<LatLng>) {
+        val builder = LatLngBounds.Builder()
+        for (location in locations) {
+            builder.include(LatLng(location.latitude, location.longitude))
+        }
+        val bounds = builder.build()
+        val padding = 50
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+        this.map.moveCamera(cameraUpdate)
+    }
+
+    /**
      * 경로 그리기
      */
     fun drawRoutes(track: List<LatLng>?) {
-        map.clear()
+        this.map.clear()
 
         if (track.isNullOrEmpty()) return
-        map.addPolyline(
+        this.map.addPolyline(
             PolylineOptions()
                 .addAll(track)
                 .addSpan(StyleSpan(Color.GREEN))

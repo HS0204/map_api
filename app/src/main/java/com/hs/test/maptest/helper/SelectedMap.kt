@@ -8,9 +8,9 @@ class SelectedMap(context: Context, private val track: List<LatLng>) : GoogleMap
 
     override fun onMapReady(googleMap: GoogleMap) {
         super.onMapReady(googleMap)
-        // todo: 트랙을 한 눈에 볼 수 있는 지점 및 줌 레벨 찾기
-//        setCamera()
+        setMyLocationEnabled(false)
         drawRoutes(track)
+        setCamera(track)
     }
 
     companion object {

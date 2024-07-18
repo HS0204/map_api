@@ -110,6 +110,7 @@ class MainMap(context: Context, private val routesViewModel: RoutesViewModel) : 
      */
     override fun onMapReady(googleMap: GoogleMap) {
         super.onMapReady(googleMap)
+        setMyLocationEnabled(true)
         checkCurrentLocation()
         startLocationUpdates()
     }
