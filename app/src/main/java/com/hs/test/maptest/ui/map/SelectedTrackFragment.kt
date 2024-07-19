@@ -17,10 +17,13 @@ class SelectedTrackFragment : BaseFragment<FragmentSelectedTrackBinding>(Fragmen
             track = args.routeInfo.location
         )
 
-        binding.googleMapView.apply {
-            onCreate(bundleOf())
-            onStart()
-            getMapAsync(mapHelper)
+        with(binding) {
+            googleMapView.apply {
+                onCreate(bundleOf())
+                onStart()
+                getMapAsync(mapHelper)
+            }
+            track = args.routeInfo
         }
     }
 

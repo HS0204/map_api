@@ -29,7 +29,10 @@ class RoutesFragment : BaseFragment<FragmentRoutesBinding>(FragmentRoutesBinding
     }
 
     override fun onRouteClick(routeInfo: RouteInfo) {
-        val action = RoutesFragmentDirections.actionRoutesFragmentToSelectedTrackFragment(routeInfo)
-        findNavController().navigate(action)
+        // todo: 내비게이션 구조에 대한 개선 작업 필요
+        findNavController().currentDestination?.getAction(R.id.action_routesFragment_to_selectedTrackFragment)?.let {
+            val action = RoutesFragmentDirections.actionRoutesFragmentToSelectedTrackFragment(routeInfo)
+            findNavController().navigate(action)
+        }
     }
 }

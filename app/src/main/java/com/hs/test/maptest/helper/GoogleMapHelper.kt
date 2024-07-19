@@ -63,7 +63,7 @@ open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
 
     /**
      * 카메라 세팅
-     * @param location : 현재 위치
+     * @param location 현재 위치
      */
     fun setCamera(location: Location) {
         this.map.moveCamera(
@@ -78,7 +78,7 @@ open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
 
     /**
      * 카메라 세팅
-     * @param locations : 경로 리스트
+     * @param locations 경로 리스트
      */
     fun setCamera(locations: List<LatLng>) {
         val builder = LatLngBounds.Builder()
