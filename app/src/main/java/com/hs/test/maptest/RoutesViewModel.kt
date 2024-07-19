@@ -11,6 +11,13 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.hs.test.maptest.data.RouteInfo
 
+sealed interface RouteUiState {
+    data class Success(val routeInfo: List<RouteInfo>) : RouteUiState
+    object NoData : RouteUiState
+    object Error : RouteUiState
+    object Loading : RouteUiState
+}
+
 class RoutesViewModel : ViewModel() {
     // 현재 경로 추적 여부
     private val _isTracking = MutableLiveData<Boolean>(false)
@@ -21,7 +28,7 @@ class RoutesViewModel : ViewModel() {
     val currentTrackingPath get() = _currentTrackingPath
 
     // DB에서 읽어온 경로 리스트
-    private val _routeList: MutableLiveData<List<RouteInfo>> = MutableLiveData(listOf())
+    private val _routeList: MutableLiveData<RouteUiState> = MutableLiveData(RouteUiState.Loading)
     val routeList get() = _routeList
 
     private val database = Firebase.database
@@ -90,20 +97,26 @@ class RoutesViewModel : ViewModel() {
                     val value = snapshot.value as? Map<*, *>
                     if (value != null) {
                         _routeList.postValue(
-                            parseDataToRouteInfoList(
-                                userId = userId,
-                                data = value
+                            RouteUiState.Success(
+                                parseDataToRouteInfoList(
+                                    userId = userId,
+                                    data = value
+                                )
                             )
                         )
+                    } else {
+                        _routeList.postValue(RouteUiState.NoData)
                     }
                     Log.i("GoogleMapHelper", "$userId DB 읽기 성공: ${snapshot.value}")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    _routeList.postValue(RouteUiState.Error)
                     Log.e("GoogleMapHelper", "$userId DB 읽기 실패: ${error.message}")
                 }
             })
         } catch (e: Exception) {
+            _routeList.postValue(RouteUiState.Error)
             Log.e("GoogleMapHelper", "$userId DB 읽기 실패: ${e.message}")
         }
     }
