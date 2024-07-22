@@ -6,7 +6,11 @@
     <data>
         <variable
             name="viewModel"
-            type="com.hs.test.maptest.RoutesViewModel" />
+            type="com.hs.test.maptest.viewmodel.TrackingViewModel" />
+
+        <variable
+            name="btnText"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,8 +27,8 @@
             android:id="@+id/btn_save_path"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.setTrackingState(!viewModel.isTracking().booleanValue())}"
-            android:text="@string/start_save_path"
+            android:onClick="@{() -> viewModel.handleTracking()}"
+            android:text="@{btnText}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 

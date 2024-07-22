@@ -1,4 +1,4 @@
-package com.hs.test.maptest
+package com.hs.test.maptest.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -19,43 +19,11 @@ sealed interface RouteUiState {
 }
 
 class RoutesViewModel : ViewModel() {
-    // 현재 경로 추적 여부
-    private val _isTracking = MutableLiveData<Boolean>(false)
-    val isTracking get() = _isTracking
-
-    // 현재 경로
-    private val _currentTrackingPath: MutableLiveData<List<LatLng>> = MutableLiveData()
-    val currentTrackingPath get() = _currentTrackingPath
-
     // DB에서 읽어온 경로 리스트
     private val _routeList: MutableLiveData<RouteUiState> = MutableLiveData(RouteUiState.Loading)
     val routeList get() = _routeList
 
     private val database = Firebase.database
-
-    /**
-     * 현재 경로에 위도, 경도 추가
-     * @param latLng 추가할 경로의 위도, 경도
-     */
-    fun addRoute(latLng: LatLng) {
-        val currentRoutes = _currentTrackingPath.value?.toMutableList() ?: mutableListOf()
-        currentRoutes.add(latLng)
-        _currentTrackingPath.postValue(currentRoutes)
-    }
-
-    /**
-     * 현재 추적 중인 경로 삭제
-     */
-    private fun clearRoutes() {
-        _currentTrackingPath.postValue(emptyList())
-    }
-
-    /**
-     * 추적 여부 저장
-     */
-    fun setTrackingState(isObserve: Boolean) {
-        _isTracking.value = isObserve
-    }
 
     /**
      * 날짜로 단 건 읽어옴
@@ -125,16 +93,18 @@ class RoutesViewModel : ViewModel() {
      * DB에 저장
      * @param userId 사용자 아이디
      * @param dateTime 저장할 날짜
+     * @return 성공 여부
      */
-    fun writeRouteToDB(userId: String, dateTime: String) {
+    fun writeRouteToDB(userId: String, dateTime: String, track: List<LatLng>): Boolean {
         val db = database.getReference(userId).child(dateTime)
 
-        try {
-            _currentTrackingPath.value?.map { location -> db.push().setValue(location) }
+        return try {
+            track.map { location -> db.push().setValue(location) }
             Log.i("GoogleMapHelper", "$userId 에 $dateTime DB 작성")
-            clearRoutes()
+            true
         } catch (e: Exception) {
             Log.e("GoogleMapHelper", "$userId 에 $dateTime DB 작성 실패")
+            false
         }
     }
 
@@ -146,7 +116,8 @@ class RoutesViewModel : ViewModel() {
 
         try {
             for ((_, value) in data) {
-                val locationData = value as? Map<String, Any> ?: return RouteInfo(userId, date, emptyList())
+                val locationData =
+                    value as? Map<String, Any> ?: return RouteInfo(userId, date, emptyList())
                 val latitude = locationData["latitude"] as? Double
                 val longitude = locationData["longitude"] as? Double
 

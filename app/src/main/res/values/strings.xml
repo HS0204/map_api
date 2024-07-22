@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">MapTest</string>
 
-    <string name="save_path">경로 기록 저장</string>
+    <string name="save_path">경로 기록 중</string>
     <string name="start_save_path">경로 기록 시작</string>
+    <string name="save_path_to_db">경로 저장 중</string>
 
     <string name="no_route">저장된 경로가 없습니다.</string>
     <string name="has_error">경로 조회 중 에러가 발생했습니다.</string>

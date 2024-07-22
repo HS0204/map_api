@@ -3,9 +3,9 @@ package com.hs.test.maptest.ui.routeList
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.hs.test.maptest.R
-import com.hs.test.maptest.RouteUiState
-import com.hs.test.maptest.RoutesViewModel
-import com.hs.test.maptest.UserViewModel
+import com.hs.test.maptest.viewmodel.RouteUiState
+import com.hs.test.maptest.viewmodel.RoutesViewModel
+import com.hs.test.maptest.viewmodel.UserViewModel
 import com.hs.test.maptest.base.BaseFragment
 import com.hs.test.maptest.data.RouteInfo
 import com.hs.test.maptest.databinding.FragmentRoutesBinding

@@ -95,14 +95,19 @@ open class GoogleMapHelper(context: Context) : OnMapReadyCallback {
      * 경로 그리기
      */
     fun drawRoutes(track: List<LatLng>?) {
-        this.map.clear()
-
         if (track.isNullOrEmpty()) return
         this.map.addPolyline(
             PolylineOptions()
                 .addAll(track)
                 .addSpan(StyleSpan(Color.GREEN))
         )
+    }
+
+    /**
+     * 지도 위 경로 삭제
+     */
+    fun clearRoutes() {
+        this.map.clear()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

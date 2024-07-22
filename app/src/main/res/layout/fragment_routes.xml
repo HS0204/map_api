@@ -7,11 +7,11 @@
 
         <variable
             name="routeListUiState"
-            type="com.hs.test.maptest.RouteUiState" />
+            type="com.hs.test.maptest.viewmodel.RouteUiState" />
 
         <variable
             name="viewModel"
-            type="com.hs.test.maptest.RoutesViewModel" />
+            type="com.hs.test.maptest.viewmodel.RoutesViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

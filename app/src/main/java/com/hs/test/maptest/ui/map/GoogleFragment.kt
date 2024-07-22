@@ -4,11 +4,12 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import com.hs.test.maptest.R
-import com.hs.test.maptest.RoutesViewModel
-import com.hs.test.maptest.UserViewModel
+import com.hs.test.maptest.viewmodel.RoutesViewModel
+import com.hs.test.maptest.viewmodel.TrackingUiState
+import com.hs.test.maptest.viewmodel.TrackingViewModel
+import com.hs.test.maptest.viewmodel.UserViewModel
 import com.hs.test.maptest.base.BaseFragment
 import com.hs.test.maptest.databinding.FragmentGoogleBinding
-import com.hs.test.maptest.helper.GoogleMapHelper
 import com.hs.test.maptest.helper.MainMap
 import com.hs.test.maptest.util.getCurrentDateTime
 
@@ -17,12 +18,13 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
     private lateinit var mapViewHelper: MainMap
 
     private val userViewModel by activityViewModels<UserViewModel>()
+    private val trackingViewModel by activityViewModels<TrackingViewModel>()
     private val routesViewModel by activityViewModels<RoutesViewModel>()
 
     override fun initView() {
         mapViewHelper = MainMap.getInstance(
             context = requireContext(),
-            routesViewModel = routesViewModel
+            trackingViewModel = trackingViewModel
         )
 
         binding.googleMapView.apply {
@@ -31,30 +33,34 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
             getMapAsync(mapViewHelper)
         }
 
-        binding.viewModel = routesViewModel
+        binding.viewModel = trackingViewModel
     }
 
     override fun setObserver() {
         super.setObserver()
-        observeTrackingState()
-    }
+        trackingViewModel.currentTrackingPath.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is TrackingUiState.Tracking -> {
+                    binding.btnText = getString(R.string.save_path)
+                }
 
-    /**
-     * 실시간 위치 감지 상태를 관찰
-     */
-    private fun observeTrackingState() {
-        routesViewModel.isTracking.observe(viewLifecycleOwner) { isObserve ->
-            if (isObserve) {
-                binding.btnSavePath.setText(R.string.save_path)
-                Toast.makeText(requireContext(), "실시간 위치 감지 시작", Toast.LENGTH_SHORT).show()
-            } else {
-                binding.btnSavePath.setText(R.string.start_save_path)
-                if (routesViewModel.currentTrackingPath.value?.isNotEmpty() == true) {
-                    routesViewModel.writeRouteToDB(
-                        userId = userViewModel.userId,
-                        dateTime = getCurrentDateTime()
-                    )
-                    Toast.makeText(requireContext(), "실시간 위치 기록 저장", Toast.LENGTH_SHORT).show()
+                is TrackingUiState.SendTrackingData -> {
+                    binding.btnText = getString(R.string.save_path_to_db)
+
+                    val track = state.track
+                    val dateTime = getCurrentDateTime()
+                    val isSuccess = routesViewModel.writeRouteToDB(userId = userViewModel.userId, dateTime, track)
+                    if (isSuccess) {
+                        Toast.makeText(requireContext(), "경로 저장 성공", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "경로 저장 실패", Toast.LENGTH_SHORT).show()
+                    }
+
+                    trackingViewModel.endTracking()
+                }
+
+                is TrackingUiState.NotTracking -> {
+                    binding.btnText = getString(R.string.start_save_path)
                 }
             }
         }
@@ -66,7 +72,8 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
         if (::mapViewHelper.isInitialized) {
             mapViewHelper.removeLocationUpdates()
         } else {
-            Toast.makeText(requireContext(), "mapViewHelper is not initialized", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "mapViewHelper is not initialized", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

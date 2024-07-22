@@ -4,9 +4,8 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import androidx.lifecycle.MutableLiveData
 import com.hs.test.maptest.R
-import com.hs.test.maptest.RouteUiState
+import com.hs.test.maptest.viewmodel.RouteUiState
 
 object BindingAdapter {
     /**

@@ -3,7 +3,6 @@ package com.hs.test.maptest.helper
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -12,31 +11,42 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolylineOptions
-import com.google.android.gms.maps.model.StyleSpan
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import com.hs.test.maptest.RoutesViewModel
-import java.lang.ref.WeakReference
+import com.hs.test.maptest.viewmodel.TrackingUiState
+import com.hs.test.maptest.viewmodel.TrackingViewModel
 
 /**
  * 메인 맵
  */
-class MainMap(context: Context, private val routesViewModel: RoutesViewModel) : GoogleMapHelper(context) {
+class MainMap(context: Context, private val trackingViewModel: TrackingViewModel) : GoogleMapHelper(context) {
 
     private val locationCallback = object : LocationCallback() {
+        // 위치 변경 때마다 감지
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
-            // 위치 변경 때마다 감지
+            clearRoutes()
+
             for (location in locationResult.locations) {
                 val latLng = LatLng(location.latitude, location.longitude)
-                if (routesViewModel.isTracking.value == true) {
-                    routesViewModel.addRoute(latLng)
-                    Log.e("GoogleMapHelper", "onLocationResult: $latLng")
-                }
+                handleTracking(latLng)
             }
+        }
+    }
 
-            drawRoutes(routesViewModel.currentTrackingPath.value ?: emptyList())
+    /**
+     * 지도에 경로 그리기 및 경로 저장 제어
+     * @param latLng 최신 감지 위치의 위경도
+     */
+    private fun handleTracking(latLng: LatLng) {
+        trackingViewModel.currentTrackingPath.value?.let { state ->
+            if (!state.isTracking()) return@let
+            Log.e("GoogleMapHelper", "onLocationResult: $latLng")
+
+            val routeResult = trackingViewModel.addRoute(latLng)
+            if (routeResult.isTracking()) {
+                drawRoutes((routeResult as TrackingUiState.Tracking).track)
+            }
         }
     }
 
@@ -119,9 +129,9 @@ class MainMap(context: Context, private val routesViewModel: RoutesViewModel) : 
         @Volatile
         private var instance: MainMap? = null
 
-        fun getInstance(context: Context, routesViewModel: RoutesViewModel): MainMap {
+        fun getInstance(context: Context, trackingViewModel: TrackingViewModel): MainMap {
             return instance ?: synchronized(this) {
-                instance ?: MainMap(context, routesViewModel).also { instance = it }
+                instance ?: MainMap(context, trackingViewModel).also { instance = it }
             }
         }
     }
