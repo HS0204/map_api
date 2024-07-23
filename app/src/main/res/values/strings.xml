@@ -7,4 +7,6 @@
 
     <string name="no_route">저장된 경로가 없습니다.</string>
     <string name="has_error">경로 조회 중 에러가 발생했습니다.</string>
+
+    <string name="total_distance">%.3f km</string>
 </resources>
