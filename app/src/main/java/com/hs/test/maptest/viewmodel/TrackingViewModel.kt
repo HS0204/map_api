@@ -55,7 +55,7 @@ class TrackingViewModel : ViewModel() {
         _currentTrackingPath.value?.let { state ->
             when (state) {
                 is TrackingUiState.Tracking -> {
-                    sendTracking()
+                    sendTrackingToDB()
                 }
 
                 is TrackingUiState.SendTrackingData -> {}
@@ -77,7 +77,7 @@ class TrackingViewModel : ViewModel() {
     /**
      * 현재 추적 중인 경로 저장
      */
-    private fun sendTracking() {
+    private fun sendTrackingToDB() {
         val track = (_currentTrackingPath.value as TrackingUiState.Tracking).track
         _currentTrackingPath.postValue(TrackingUiState.SendTrackingData(track))
     }
@@ -85,7 +85,7 @@ class TrackingViewModel : ViewModel() {
     /**
      * 현재 경로 추적 종료
      */
-    fun endTracking() {
+    fun stopTracking() {
         _currentTrackingPath.postValue(TrackingUiState.NotTracking)
     }
 }
