@@ -56,7 +56,7 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>(FragmentGoogleBinding
                         Toast.makeText(requireContext(), "경로 저장 실패", Toast.LENGTH_SHORT).show()
                     }
 
-                    trackingViewModel.endTracking()
+                    trackingViewModel.stopTracking()
                 }
 
                 is TrackingUiState.NotTracking -> {
