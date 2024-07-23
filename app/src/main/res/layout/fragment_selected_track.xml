@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="track"
-            type="com.hs.test.maptest.data.RouteInfo" />
+            name="date"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +22,7 @@
 
         <TextView
             android:padding="20dp"
-            android:text="@{track.date}"
+            android:text="@{date}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"

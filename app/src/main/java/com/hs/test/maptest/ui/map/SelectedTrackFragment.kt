@@ -5,6 +5,7 @@ import androidx.navigation.fragment.navArgs
 import com.hs.test.maptest.base.BaseFragment
 import com.hs.test.maptest.databinding.FragmentSelectedTrackBinding
 import com.hs.test.maptest.helper.SelectedMap
+import com.hs.test.maptest.util.formatTime
 
 class SelectedTrackFragment : BaseFragment<FragmentSelectedTrackBinding>(FragmentSelectedTrackBinding::inflate) {
     private lateinit var mapHelper: SelectedMap
@@ -23,7 +24,7 @@ class SelectedTrackFragment : BaseFragment<FragmentSelectedTrackBinding>(Fragmen
                 onStart()
                 getMapAsync(mapHelper)
             }
-            track = args.routeInfo
+            date = args.routeInfo.date.formatTime()
         }
     }
 

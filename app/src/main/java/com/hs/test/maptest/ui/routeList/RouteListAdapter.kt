@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.hs.test.maptest.data.RouteInfo
 import com.hs.test.maptest.databinding.ItemPathBinding
+import com.hs.test.maptest.util.formatTime
 
 class RouteListAdapter(private val interaction: OnRouteClickListener) : ListAdapter<RouteInfo, RouteListAdapter.ViewHolder>(DiffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteListAdapter.ViewHolder {
@@ -27,7 +28,7 @@ class RouteListAdapter(private val interaction: OnRouteClickListener) : ListAdap
         RecyclerView.ViewHolder(binding.root) {
         fun bind(routeInfo: RouteInfo, position: Int) {
             with(binding) {
-                route = routeInfo
+                route = routeInfo.copy(date = routeInfo.date.formatTime())
                 tvPathIndex.text = position.plus(1).toString()      // todo : 데이터 클래스에 index 넣기
                 root.setOnClickListener { interaction.onRouteClick(routeInfo) }
             }

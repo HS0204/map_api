@@ -29,7 +29,7 @@ class RoutesFragment : BaseFragment<FragmentRoutesBinding>(FragmentRoutesBinding
             binding.routeListUiState = state
 
             if (state is RouteUiState.Success) {
-                val routeList = state.routeInfo
+                val routeList = state.routeInfo.sortedBy { it.date }
                 adapter.submitList(routeList)
             }
         }
